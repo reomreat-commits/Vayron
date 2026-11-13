@@ -170,10 +170,13 @@ export default function Storefront() {
     // Reserve a new tab synchronously in the click handler for mobile popup blockers.
     const popup = window.open('about:blank', '_blank');
     const { data, error: stockError } = await supabase
-      .from('product_variants').select('id,stock').in('id', entries.map(entry => entry.variantId));
-    const rows = (data || []) as Array<{ id: string; stock: number }>;
+      .from('product_variants').select('id,stock,products(is_active)').in('id', entries.map(entry => entry.variantId));
+    const rows = (data || []) as Array<{ id: string; stock: number; products: { is_active: boolean } | null }>;
     if (stockError || rows.length !== entries.length ||
-      entries.some(entry => (rows.find(row => row.id === entry.variantId)?.stock ?? 0) < entry.quantity)) {
+      entries.some(entry => {
+        const row = rows.find(item => item.id === entry.variantId);
+        return !row || row.stock < entry.quantity || !row.products?.is_active;
+      })) {
       popup?.close();
       notify('Остатки изменились. Обновите страницу и проверьте корзину.');
       return;
