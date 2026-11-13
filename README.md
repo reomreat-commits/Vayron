@@ -16,7 +16,7 @@ The original HTML is preserved byte-for-byte in `original/VAYRON — Streetwear 
 ## Local development
 
 ```bash
-npm install
+npm ci
 cp .env.example .env
 npm run dev
 ```
@@ -30,4 +30,4 @@ npm run typecheck
 npm run build
 ```
 
-All owner operations are still subject to Supabase RLS. The browser-side admin check only controls the interface; it is not the security boundary.
+GitHub Actions runs both checks on pushes to `main`. All owner operations remain subject to Supabase RLS; the browser-side admin check is not the security boundary.
