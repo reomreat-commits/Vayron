@@ -21,7 +21,11 @@ function parseVariants(value: string) {
   const variants = value.split('\n').map(line => line.trim()).filter(Boolean).map(line => {
     const match = line.match(/^(.+?)\s*:\s*(\d+)$/);
     if (!match) throw new Error(`Неверный формат размера: «${line}». Используй, например, S:3`);
-    return { size_label: match[1].trim(), stock: Number(match[2]) };
+    const sizeLabel = match[1].trim();
+    const stock = Number(match[2]);
+    if (!sizeLabel) throw new Error('Название размера не может быть пустым.');
+    if (!Number.isSafeInteger(stock) || stock > 2147483647) throw new Error(`Остаток для размера «${sizeLabel}» слишком большой.`);
+    return { size_label: sizeLabel, stock };
   });
   const seen = new Set<string>();
   for (const variant of variants) {
@@ -149,6 +153,10 @@ export default function Admin() {
     }
     setBusy(true); setMessage('');
     const slug = makeSlug(productName);
+    if (!slug) {
+      setMessage('Название товара должно содержать буквы или цифры, чтобы создать адрес товара.');
+      return;
+    }
     const { data: created, error: productError } = await supabase.from('products').insert({
       name_ru: productName.trim(),
       name_ky: productNameKy.trim() || productName.trim(),
