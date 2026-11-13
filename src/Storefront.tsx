@@ -66,10 +66,11 @@ export default function Storefront() {
       setCategories((categoryResult.data || []) as Category[]);
       setSettings((settingsResult.data || null) as StoreSettings | null);
       setSelected(Object.fromEntries(nextProducts.map(product => {
-        const firstAvailable = [...(product.product_variants || [])]
+        const available = [...(product.product_variants || [])]
           .filter(variant => variant.stock > 0)
-          .sort((a, b) => a.size_label.localeCompare(b.size_label, 'ru', { numeric: true }))[0];
-        return [product.id, firstAvailable?.id || ''];
+          .sort((a, b) => a.size_label.localeCompare(b.size_label, 'ru', { numeric: true }));
+        // The original HTML selects the second size by default (M / 41), if available.
+        return [product.id, (available[1] || available[0])?.id || ''];
       })));
       setCart(current => current.flatMap(line => {
         const product = nextProducts.find(item => item.id === line.productId);
@@ -315,13 +316,13 @@ export default function Storefront() {
           const selectedVariant = selected[product.id];
           return (
             <article className="card rv" style={{ '--i': index % 4 } as CSSProperties} key={product.id}>
-              <div className="pic">
+              <div className="pic" style={{ backgroundColor: "var(--panel)" }}>
                 {image
                   ? <img src={image} alt={product.name_ru} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                   : <span style={{ display: 'flex', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--mute)', fontSize: 12, letterSpacing: '.24em' }}>VAYRON</span>}
               </div>
               <h3>{product.name_ru}</h3>
-              <div className="meta">{product.categories?.name_ru || ''}</div>
+              <div className="meta">{product.description_ru || ''}</div>
               <div className="szs">
                 {variants.map(variant => (
                   <button key={variant.id} className="sz" disabled={variant.stock < 1} aria-pressed={selectedVariant === variant.id} onClick={() => setSelected(current => ({ ...current, [product.id]: variant.id }))}>{variant.size_label}</button>
