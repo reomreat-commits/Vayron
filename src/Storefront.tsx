@@ -316,12 +316,10 @@ export default function Storefront() {
           const selectedVariant = selected[product.id];
           return (
             <article className="card rv" style={{ '--i': index % 4 } as CSSProperties} key={product.id}>
-              <div className="pic" style={{ backgroundColor: "var(--panel)" }}>
-                <div className="photo-frame">
-                  {image
-                    ? <img src={image} alt={product.name_ru} loading="lazy" decoding="async" />
-                    : <span className="photo-placeholder">VAYRON</span>}
-                </div>
+              <div className="pic">
+                {image
+                  ? <img src={image} alt={product.name_ru} loading="lazy" decoding="async" />
+                  : <span className="photo-placeholder">VAYRON</span>}
               </div>
               <div className="card-copy">
                 <h3>{product.name_ru}</h3>
