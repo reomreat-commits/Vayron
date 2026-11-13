@@ -328,7 +328,7 @@ export default function Storefront() {
                 {product.description_ru && <div className="meta">{product.description_ru}</div>}
                 <div className="size-heading">
                   <span>Размер</span>
-                  <span>{variants.some(variant => variant.stock > 0) ? 'Выберите вариант' : 'Нет в наличии'}</span>
+                  <span>{variants.some(variant => variant.stock > 0) ? (selectedVariant ? `Выбран: ${variants.find(variant => variant.id === selectedVariant)?.size_label || ''}` : 'Выберите размер') : 'Нет в наличии'}</span>
                 </div>
                 <div className="szs" role="group" aria-label={`Размеры: ${product.name_ru}`}>
                   {variants.map(variant => (
