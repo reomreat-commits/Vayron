@@ -322,7 +322,6 @@ export default function Storefront() {
                     ? <img src={image} alt={product.name_ru} loading="lazy" decoding="async" />
                     : <span className="photo-placeholder">VAYRON</span>}
                 </div>
-                <span className="photo-index" aria-hidden="true">01 / {String(Math.max(1, product.product_images?.length || 1)).padStart(2, '0')}</span>
               </div>
               <div className="card-copy">
                 <h3>{product.name_ru}</h3>
