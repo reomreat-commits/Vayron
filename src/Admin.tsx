@@ -50,7 +50,8 @@ export default function Admin() {
   const [productDescription, setProductDescription] = useState('');
   const [productCategory, setProductCategory] = useState('');
   const [productPrice, setProductPrice] = useState('');
-  const [selectedSizes, setSelectedSizes] = useState<string[]>(DEFAULT_SIZES);\n  const [sizeStocks, setSizeStocks] = useState<Record<string, string>>({ S: '0', M: '0', L: '0', XL: '0' });
+  const [selectedSizes, setSelectedSizes] = useState<string[]>(DEFAULT_SIZES);
+  const [sizeStocks, setSizeStocks] = useState<Record<string, string>>({ S: '0', M: '0', L: '0', XL: '0' });
   const [productImages, setProductImages] = useState<File[]>([]);
   const [publishImmediately, setPublishImmediately] = useState(false);
 
