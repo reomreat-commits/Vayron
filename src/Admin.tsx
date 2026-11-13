@@ -17,23 +17,18 @@ function makeSlug(value: string) {
   return value.toLowerCase().replace(/[а-яё]/g, letter => transliteration[letter] ?? letter)
     .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
-function parseVariants(value: string) {
-  const variants = value.split('\n').map(line => line.trim()).filter(Boolean).map(line => {
-    const match = line.match(/^(.+?)\s*:\s*(\d+)$/);
-    if (!match) throw new Error(`Неверный формат размера: «${line}». Используй, например, S:3`);
-    const sizeLabel = match[1].trim();
-    const stock = Number(match[2]);
-    if (!sizeLabel) throw new Error('Название размера не может быть пустым.');
-    if (!Number.isSafeInteger(stock) || stock > 2147483647) throw new Error(`Остаток для размера «${sizeLabel}» слишком большой.`);
-    return { size_label: sizeLabel, stock };
+const SIZE_OPTIONS = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'] as const;
+const DEFAULT_SIZES = ['S', 'M', 'L', 'XL'];
+function parseVariants(sizes: string[], stocks: Record<string, string>) {
+  if (!sizes.length) throw new Error('Выбери хотя бы один размер.');
+  return sizes.map(size_label => {
+    const raw = stocks[size_label] ?? '0';
+    const stock = Number(raw);
+    if (!Number.isSafeInteger(stock) || stock < 0 || stock > 2147483647) {
+      throw new Error(`Укажи корректный остаток для размера «${size_label}».`);
+    }
+    return { size_label, stock };
   });
-  const seen = new Set<string>();
-  for (const variant of variants) {
-    const key = variant.size_label.toLowerCase();
-    if (seen.has(key)) throw new Error(`Размер «${variant.size_label}» указан дважды.`);
-    seen.add(key);
-  }
-  return variants;
 }
 
 export default function Admin() {
@@ -55,7 +50,7 @@ export default function Admin() {
   const [productDescription, setProductDescription] = useState('');
   const [productCategory, setProductCategory] = useState('');
   const [productPrice, setProductPrice] = useState('');
-  const [productSizes, setProductSizes] = useState('');
+  const [selectedSizes, setSelectedSizes] = useState<string[]>(DEFAULT_SIZES);\n  const [sizeStocks, setSizeStocks] = useState<Record<string, string>>({ S: '0', M: '0', L: '0', XL: '0' });
   const [productImages, setProductImages] = useState<File[]>([]);
   const [publishImmediately, setPublishImmediately] = useState(false);
 
@@ -140,7 +135,7 @@ export default function Admin() {
     event.preventDefault();
     if (!supabase) return;
     let variants: ReturnType<typeof parseVariants>;
-    try { variants = parseVariants(productSizes); }
+    try { variants = parseVariants(selectedSizes, sizeStocks); }
     catch (error) { setMessage(error instanceof Error ? error.message : 'Проверь размеры и остатки.'); return; }
     if (!productName.trim() || !productCategory || !productPrice || !variants.length ||
       !Number.isFinite(Number(productPrice)) || Number(productPrice) < 0) {
@@ -223,7 +218,7 @@ export default function Admin() {
     }
 
     setProductName(''); setProductNameKy(''); setProductDescription('');
-    setProductPrice(''); setProductSizes(''); setProductImages([]);
+    setProductPrice(''); setSelectedSizes(DEFAULT_SIZES); setSizeStocks({ S: '0', M: '0', L: '0', XL: '0' }); setProductImages([]);
     setPublishImmediately(false);
     await loadAdminData();
     setMessage('Товар сохранён.');
@@ -314,7 +309,31 @@ export default function Admin() {
             <label>Категория<select value={productCategory} onChange={event => setProductCategory(event.target.value)} required><option value="">Выбери категорию</option>{categories.map(item => <option key={item.id} value={item.id}>{item.name_ru}</option>)}</select></label>
             <label>Цена, сом<input type="number" min="0" step="1" value={productPrice} onChange={event => setProductPrice(event.target.value)} required /></label>
             <label className="admin-full">Описание<textarea value={productDescription} onChange={event => setProductDescription(event.target.value)} rows={3} /></label>
-            <label className="admin-full">Размеры и остатки (каждая строка: S:3)<textarea value={productSizes} onChange={event => setProductSizes(event.target.value)} placeholder={'S:0\nM:0\nL:0'} rows={4} required /></label>
+            <fieldset className="admin-full admin-size-picker">
+              <legend>Размеры и остатки</legend>
+              <p className="admin-note">Выбери размеры, которые будут доступны покупателям. Для каждого укажи количество.</p>
+              <div className="admin-size-options">
+                {SIZE_OPTIONS.map(size => {
+                  const checked = selectedSizes.includes(size);
+                  return (
+                    <label className={checked ? 'admin-size-option selected' : 'admin-size-option'} key={size}>
+                      <input type="checkbox" checked={checked} onChange={event => {
+                        setSelectedSizes(current => event.target.checked
+                          ? [...current, size].sort((x, y) => SIZE_OPTIONS.indexOf(x as typeof SIZE_OPTIONS[number]) - SIZE_OPTIONS.indexOf(y as typeof SIZE_OPTIONS[number]))
+                          : current.filter(item => item !== size));
+                        setSizeStocks(current => ({ ...current, [size]: current[size] ?? '0' }));
+                      }} />
+                      <span>{size}</span>
+                    </label>
+                  );
+                })}
+              </div>
+              <div className="admin-size-stock-grid">
+                {selectedSizes.map(size => (
+                  <label key={size}>{size}<input type="number" min="0" step="1" inputMode="numeric" value={sizeStocks[size] ?? '0'} onChange={event => setSizeStocks(current => ({ ...current, [size]: event.target.value }))} /></label>
+                ))}
+              </div>
+            </fieldset>
             <label className="admin-full">Фотографии (JPEG / PNG / WebP, до 10 МБ)<input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={event => setProductImages(Array.from(event.target.files || []))} /></label>
             <label className="admin-check"><input type="checkbox" checked={publishImmediately} onChange={event => setPublishImmediately(event.target.checked)} /> Сразу опубликовать товар</label>
             <button className="admin-primary admin-full" disabled={busy || categories.length === 0}>{busy ? 'Сохраняем…' : 'Создать товар'}</button>
