@@ -27,5 +27,12 @@
 - Test admin upload and stock workflows against the live Supabase project.
 - Choose hosting and publish the production build.
 
+
+## Latest verification
+- GitHub Actions run #27 passed dependency installation, high-severity npm audit, TypeScript validation, and the production Vite build for the code at the start of this final verification pass.
+- A fresh CI run is required after each subsequent code change; do not treat the earlier run as validating later commits.
+- Supabase sanity check: one admin profile, KGS settings row present, and no categories, products, variants, or product images seeded.
+- Supabase Security Advisor currently warns that leaked-password protection is disabled. This Auth setting has not been changed from the code repository.
+
 ## Security
 Never expose Supabase `service_role` or secret keys in `VITE_*` variables. Browser access uses only the publishable/anon key. Database RLS policies are the actual authorization boundary; the frontend role check is only a UX gate.
