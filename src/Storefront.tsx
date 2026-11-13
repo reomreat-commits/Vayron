@@ -317,20 +317,37 @@ export default function Storefront() {
           return (
             <article className="card rv" style={{ '--i': index % 4 } as CSSProperties} key={product.id}>
               <div className="pic" style={{ backgroundColor: "var(--panel)" }}>
-                {image
-                  ? <img src={image} alt={product.name_ru} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-                  : <span style={{ display: 'flex', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--mute)', fontSize: 12, letterSpacing: '.24em' }}>VAYRON</span>}
+                <div className="photo-frame">
+                  {image
+                    ? <img src={image} alt={product.name_ru} loading="lazy" decoding="async" />
+                    : <span className="photo-placeholder">VAYRON</span>}
+                </div>
+                <span className="photo-index" aria-hidden="true">01 / {String(Math.max(1, product.product_images?.length || 1)).padStart(2, '0')}</span>
               </div>
-              <h3>{product.name_ru}</h3>
-              <div className="meta">{product.description_ru || ''}</div>
-              <div className="szs">
-                {variants.map(variant => (
-                  <button key={variant.id} className="sz" disabled={variant.stock < 1} aria-pressed={selectedVariant === variant.id} onClick={() => setSelected(current => ({ ...current, [product.id]: variant.id }))}>{variant.size_label}</button>
-                ))}
-              </div>
-              <div className="row">
-                <span className="price">{formatPrice(Number(product.price))}</span>
-                <button className="add" disabled={!variants.some(variant => variant.stock > 0)} onClick={() => add(product)}>В корзину</button>
+              <div className="card-copy">
+                <h3>{product.name_ru}</h3>
+                {product.description_ru && <div className="meta">{product.description_ru}</div>}
+                <div className="size-heading">
+                  <span>Размер</span>
+                  <span>{variants.some(variant => variant.stock > 0) ? 'Выберите вариант' : 'Нет в наличии'}</span>
+                </div>
+                <div className="szs" role="group" aria-label={`Размеры: ${product.name_ru}`}>
+                  {variants.map(variant => (
+                    <button
+                      key={variant.id}
+                      className="sz"
+                      type="button"
+                      disabled={variant.stock < 1}
+                      aria-pressed={selectedVariant === variant.id}
+                      aria-label={`${variant.size_label}${variant.stock < 1 ? ', нет в наличии' : ''}`}
+                      onClick={() => setSelected(current => ({ ...current, [product.id]: variant.id }))}
+                    >{variant.size_label}</button>
+                  ))}
+                </div>
+                <div className="row">
+                  <span className="price">{formatPrice(Number(product.price))}</span>
+                  <button className="add" type="button" disabled={!variants.some(variant => variant.stock > 0) || !selectedVariant || !variants.some(variant => variant.id === selectedVariant && variant.stock > 0)} onClick={() => add(product)}>В корзину</button>
+                </div>
               </div>
             </article>
           );
