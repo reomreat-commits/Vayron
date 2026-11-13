@@ -16,7 +16,7 @@
 - Admin interface supports categories, product creation, size-level stock, product image upload, publication status, and store contacts.
 - The legacy source's fake WhatsApp and Instagram destinations are removed from the active storefront markup.
 - `package-lock.json` is committed; CI installs with `npm ci`.
-- GitHub Actions TypeScript check and Vite production build passed on the current application code.
+- GitHub Actions workflow is configured to run the TypeScript check and Vite production build on pushes and pull requests. The latest run still needs confirmation.
 
 ## Remaining before launch
 - Configure `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in the hosting environment.
