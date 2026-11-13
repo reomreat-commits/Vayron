@@ -18,11 +18,18 @@ function makeSlug(value: string) {
     .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 function parseVariants(value: string) {
-  return value.split('\n').map(line => line.trim()).filter(Boolean).map(line => {
-    const match = line.match(/^(.+?)\s*:\s*(\d+)$/);
+  const variants = value.split('\\n').map(line => line.trim()).filter(Boolean).map(line => {
+    const match = line.match(/^(.+?)\\s*:\\s*(\\d+)$/);
     if (!match) throw new Error(`Неверный формат размера: «${line}». Используй, например, S:3`);
     return { size_label: match[1].trim(), stock: Number(match[2]) };
   });
+  const seen = new Set<string>();
+  for (const variant of variants) {
+    const key = variant.size_label.toLowerCase();
+    if (seen.has(key)) throw new Error(`Размер «${variant.size_label}» указан дважды.`);
+    seen.add(key);
+  }
+  return variants;
 }
 
 export default function Admin() {
@@ -44,7 +51,7 @@ export default function Admin() {
   const [productDescription, setProductDescription] = useState('');
   const [productCategory, setProductCategory] = useState('');
   const [productPrice, setProductPrice] = useState('');
-  const [productSizes, setProductSizes] = useState('S:3\nM:3\nL:2');
+  const [productSizes, setProductSizes] = useState('');
   const [productImages, setProductImages] = useState<File[]>([]);
   const [publishImmediately, setPublishImmediately] = useState(false);
 
@@ -193,7 +200,7 @@ export default function Admin() {
     }
 
     setProductName(''); setProductNameKy(''); setProductDescription('');
-    setProductPrice(''); setProductSizes('S:3\nM:3\nL:2'); setProductImages([]);
+    setProductPrice(''); setProductSizes(''); setProductImages([]);
     setPublishImmediately(false);
     await loadAdminData();
     setMessage('Товар сохранён.');
@@ -280,7 +287,7 @@ export default function Admin() {
             <label>Категория<select value={productCategory} onChange={event => setProductCategory(event.target.value)} required><option value="">Выбери категорию</option>{categories.map(item => <option key={item.id} value={item.id}>{item.name_ru}</option>)}</select></label>
             <label>Цена, сом<input type="number" min="0" step="1" value={productPrice} onChange={event => setProductPrice(event.target.value)} required /></label>
             <label className="admin-full">Описание<textarea value={productDescription} onChange={event => setProductDescription(event.target.value)} rows={3} /></label>
-            <label className="admin-full">Размеры и остатки (каждая строка: S:3)<textarea value={productSizes} onChange={event => setProductSizes(event.target.value)} rows={4} required /></label>
+            <label className="admin-full">Размеры и остатки (каждая строка: S:3)<textarea value={productSizes} onChange={event => setProductSizes(event.target.value)} placeholder={'S:0\nM:0\nL:0'} rows={4} required /></label>
             <label className="admin-full">Фотографии (JPEG / PNG / WebP, до 10 МБ)<input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={event => setProductImages(Array.from(event.target.files || []))} /></label>
             <label className="admin-check"><input type="checkbox" checked={publishImmediately} onChange={event => setPublishImmediately(event.target.checked)} /> Сразу опубликовать товар</label>
             <button className="admin-primary admin-full" disabled={busy || categories.length === 0}>{busy ? 'Сохраняем…' : 'Создать товар'}</button>
