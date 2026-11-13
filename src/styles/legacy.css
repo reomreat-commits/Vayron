@@ -767,3 +767,119 @@ body.dark .theme-btn .moon{display:none}
 @media (prefers-reduced-motion:reduce){
   .photo-frame img{transition:none!important}
 }
+
+
+/* VAYRON PRODUCT CARD — match the approved clean reference layout */
+.grid{
+  grid-template-columns:minmax(0,1fr);
+  max-width:760px;
+  padding:0 24px 24px;
+  gap:34px;
+}
+.card{width:100%;gap:0}
+.card .pic{
+  width:100%;
+  aspect-ratio:4/5;
+  padding:clamp(18px,4vw,30px);
+  border:1px solid var(--line);
+  border-radius:5px;
+  background:var(--panel);
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+}
+.card .pic img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  padding:clamp(18px,5vw,44px);
+  display:block;
+}
+.card .photo-placeholder{
+  color:var(--mute);
+  font-size:clamp(18px,3vw,28px);
+  letter-spacing:.28em;
+}
+.card h3{
+  margin:24px 6px 0;
+  font-size:clamp(24px,4vw,34px);
+  line-height:1.16;
+  font-weight:500;
+  letter-spacing:.01em;
+}
+.card .meta{
+  margin:8px 6px 0;
+  min-height:0;
+  font-size:clamp(17px,2.8vw,24px);
+  line-height:1.35;
+  -webkit-line-clamp:2;
+}
+.size-heading{
+  margin:30px 6px 0;
+  font-size:clamp(13px,2.2vw,17px);
+  letter-spacing:.12em;
+}
+.szs{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(76px,1fr));
+  gap:12px;
+  margin:16px 0 0;
+  min-height:0;
+}
+.sz{
+  width:100%;
+  min-width:0;
+  height:auto;
+  aspect-ratio:1;
+  padding:8px;
+  border:1.5px solid var(--line);
+  border-radius:5px;
+  font-size:clamp(20px,3.2vw,30px);
+  font-weight:400;
+}
+.sz[aria-pressed="true"]{
+  background:var(--ink);
+  color:var(--milk);
+  border-color:var(--ink);
+}
+.row{
+  align-items:center;
+  gap:16px;
+  margin:34px 0 0;
+}
+.price{
+  font-size:clamp(24px,4vw,34px);
+  font-weight:600;
+  white-space:nowrap;
+}
+.add{
+  min-width:0;
+  min-height:88px;
+  flex:1 1 auto;
+  padding:18px 22px;
+  border-radius:5px;
+  font-size:clamp(16px,2.4vw,22px);
+  letter-spacing:.08em;
+}
+@media (min-width:760px){
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));max-width:1180px;padding:0 32px 32px;gap:34px}
+  .card .pic{padding:18px}
+  .szs{grid-template-columns:repeat(auto-fit,minmax(58px,1fr));gap:8px}
+  .sz{font-size:clamp(17px,1.7vw,24px)}
+  .row{gap:10px;margin-top:24px}
+  .add{min-height:64px;padding:12px}
+  .price{font-size:clamp(18px,2vw,25px)}
+}
+@media (min-width:1120px){
+  .grid{grid-template-columns:repeat(3,minmax(0,1fr));max-width:1440px}
+}
+@media (max-width:380px){
+  .grid{padding-left:16px;padding-right:16px;gap:28px}
+  .szs{grid-template-columns:repeat(auto-fit,minmax(62px,1fr));gap:8px}
+  .row{gap:10px;margin-top:26px}
+  .add{min-height:68px;padding:12px 10px;font-size:14px}
+  .price{font-size:21px}
+}
+@media (prefers-reduced-motion:reduce){
+  .card .pic img{transition:none!important}
+}
