@@ -25,6 +25,9 @@ Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in `.env`. Never exp
 
 ## Validation
 
+The GitHub Actions workflow runs dependency audit, TypeScript validation, and a production Vite build on pushes and pull requests to `main`.
+
+
 ```bash
 npm run typecheck
 npm run build
