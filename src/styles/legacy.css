@@ -1,30 +1,38 @@
+
 :root{
-  --milk:#f7f3ea;
-  --panel:#ece5d6;
+  --milk:#f3eee3;
+  --panel:#e9e2d3;
   --ink:#1c2233;
   --navy:#1b2236;
   --brick:#8a4b3a;
   --mute:#6f6a60;
-  --line:#ddd5c4;
-  --bar-bg:rgba(247,243,234,.92);
+  --line:#dcd4c1;
+  --bar-bg:rgba(243,238,227,.92);
   --ease:cubic-bezier(.2,.7,.2,1);
   color-scheme:light;
 }
 body.dark{
-  --milk:#12141c;
-  --panel:#1c2030;
-  --ink:#e8e4d8;
-  --navy:#e8e4d8;
+  --milk:#0f0e0d;
+  --panel:rgba(30,27,24,.72);
+  --ink:#f4f1ec;
+  --navy:#f4f1ec;
   --brick:#c97b5a;
-  --mute:#9a958a;
-  --line:#2a3040;
-  --bar-bg:rgba(18,20,28,.92);
+  --mute:#b3aca0;
+  --line:rgba(244,241,236,.14);
+  --bar-bg:rgba(13,12,11,.88);
   color-scheme:dark;
+  background:transparent;
 }
+.site-bg{position:fixed;inset:0;z-index:-1;overflow:hidden;background:#f3eee3;transition:background .5s}
+.site-bg i{position:absolute;inset:-60px;background:center 70%/cover no-repeat;filter:blur(10px) brightness(1.15) saturate(.95)}
+.site-bg::after{content:"";position:absolute;inset:0;background:rgba(243,238,227,.8);transition:background .5s}
+body.dark .site-bg{background:#0d0c0b}
+body.dark .site-bg::after{background:radial-gradient(ellipse at 50% 35%,rgba(0,0,0,0),rgba(0,0,0,.4) 80%),linear-gradient(180deg,rgba(13,12,11,.1),rgba(13,12,11,.3))}
+body.dark .site-bg{opacity:1}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{
-  background:var(--milk);
+  background:transparent;
   color:var(--ink);
   font-family:Jost,Futura,"Century Gothic",sans-serif;
   font-weight:400;
@@ -226,14 +234,22 @@ a{color:inherit;text-decoration:none}
   margin:12px 0 0;
   gap:8px;
 }
-.price{font-size:16px;font-weight:600}
+.price{font-size:16px;font-weight:600;white-space:nowrap;flex:1 1 auto;min-width:0}
 .add{
   background:var(--navy);
   color:var(--milk);
-  padding:12px 14px;
+  flex:0 0 104px;
+  width:104px;
+  height:40px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 6px;
+  white-space:nowrap;
+  text-align:center;
   font-size:11px;
   font-weight:500;
-  letter-spacing:.1em;
+  letter-spacing:.07em;
   text-transform:uppercase;
   border-radius:2px;
   transition:background .25s,transform .25s var(--ease);
@@ -297,7 +313,7 @@ footer{
   position:fixed;
   left:12px;right:12px;
   bottom:calc(12px + env(safe-area-inset-bottom,0px));
-  background:rgba(247,243,234,.82);
+  background:rgba(243,238,227,.85);
   backdrop-filter:blur(18px);
   -webkit-backdrop-filter:blur(18px);
   border:1px solid var(--line);
@@ -311,7 +327,7 @@ footer{
   transition:background .45s var(--ease), border-color .45s, box-shadow .45s;
 }
 body.dark .bar{
-  background:rgba(18,20,28,.82);
+  background:rgba(13,12,11,.78);
 }
 .bar b{font-weight:600;letter-spacing:.28em;font-size:14px}
 .bagbtn{
@@ -460,19 +476,35 @@ body.dark .theme-btn .sun{display:block}
 body.dark .theme-btn .moon{display:none}
 
 
+@keyframes logoIn{
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes fadeUp{
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes lineGrow{
+  to{width:56px;opacity:1}
+}
+@keyframes bounce{
+  0%,100%{transform:rotate(45deg) translateY(0);opacity:.5}
+  50%{transform:rotate(45deg) translateY(8px);opacity:1}
+}
+@keyframes glowPulse{
+  0%{opacity:.7;transform:scale(1)}
+  100%{opacity:1;transform:scale(1.08)}
+}
+
+
+
+
+
+
+
 .chip, .add, .perk, .band, .card h3, .meta, .price, .sz, footer, .social a, .sheet, .sh-head, .foot, .pay {
   transition: background .45s var(--ease), color .45s var(--ease), border-color .45s var(--ease);
 }
 
-/* Separate order destinations retain the original checkout button styling. */
-.checkout-actions{display:grid;gap:8px}
 
-.instagram-order{display:grid;gap:8px}.instagram-order textarea{width:100%;min-height:110px;resize:vertical;background:var(--milk);color:var(--ink);border:1px solid var(--line);padding:10px;font:inherit;font-size:12px;line-height:1.5}.instagram-back{background:transparent;color:var(--mute);padding:8px;font:inherit;font-size:12px}
-
-
-/* Original VAYRON street-scene intro and page backdrop */
-.site-bg{position:fixed;inset:0;z-index:-1;overflow:hidden;background:#0d0c0b;opacity:1;transition:background .5s}
-.site-bg i{position:absolute;inset:-60px;background:center 70%/cover no-repeat;filter:blur(10px) brightness(1.15) saturate(.95);will-change:transform}
 /* SPLASH — VAYRON street scene */
 #splash{position:relative;width:100%;height:72svh;min-height:420px;max-height:620px;background:#0d0c0b;overflow:hidden;z-index:1;isolation:isolate}
 #vsStage{position:absolute;left:0;top:0;width:1280px;height:853px;transform-origin:0 0}
@@ -542,3 +574,9 @@ body.dark .theme-btn .moon{display:none}
   .head.rv h2,.card.rv,.card.rv .pic svg,.band,.band.rv h2,.band.rv p,.social.rv a{animation:none!important;clip-path:none!important;opacity:1!important;transform:none!important;transition:none!important}
   .band.rv p{opacity:.92!important}
 }
+/* React checkout actions; keeps the original button treatment. */
+.checkout-actions{display:grid;gap:8px}
+.instagram-order{display:grid;gap:8px}
+.instagram-order textarea{width:100%;min-height:110px;resize:vertical;background:var(--milk);color:var(--ink);border:1px solid var(--line);padding:10px;font:inherit;font-size:12px;line-height:1.5}
+.instagram-back{background:transparent;color:var(--mute);padding:8px;font:inherit;font-size:12px}
+.pic img{width:100%;height:100%;object-fit:cover;display:block}
