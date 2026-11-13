@@ -10,6 +10,7 @@ function StorefrontShell() {
   useEffect(() => {
     const host = document.getElementById('legacy-site');
     if (!host) return;
+    const mountNode = host;
 
     let active = true;
     let cleanup: (() => void) | null = null;
@@ -21,7 +22,7 @@ function StorefrontShell() {
         if (!response.ok) throw new Error('Failed to load storefront markup');
         const markup = await response.text();
         if (!active) return;
-        host.innerHTML = markup;
+        mountNode.innerHTML = markup;
         cleanup = initVisualInteractions();
         setMounted(true);
       } catch (error) {
@@ -36,7 +37,7 @@ function StorefrontShell() {
       active = false;
       controller.abort();
       cleanup?.();
-      host.replaceChildren();
+      mountNode.replaceChildren();
     };
   }, []);
 
