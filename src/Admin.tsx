@@ -157,7 +157,8 @@ export default function Admin() {
       category_id: productCategory,
       slug,
       price: Number(productPrice),
-      is_active: publishImmediately,
+      // Keep the product hidden until variants and all selected images are ready.
+      is_active: false,
     }).select('id').single();
     if (productError || !created) {
       setMessage(productError?.code === '23505' ? 'Товар с таким slug уже существует.' : 'Не удалось создать товар.');
@@ -175,6 +176,7 @@ export default function Admin() {
       return;
     }
 
+    const uploadedPaths: string[] = [];
     try {
       const imageRows: Array<{ product_id: string; image_url: string; alt_ru: string; sort_order: number }> = [];
       for (const [index, file] of productImages.entries()) {
@@ -184,6 +186,7 @@ export default function Admin() {
           cacheControl: '3600', upsert: false, contentType: file.type,
         });
         if (uploadError) throw uploadError;
+        uploadedPaths.push(path);
         const { data: publicData } = supabase.storage.from('product-images').getPublicUrl(path);
         imageRows.push({ product_id: created.id, image_url: publicData.publicUrl, alt_ru: productName.trim(), sort_order: index });
       }
@@ -193,10 +196,22 @@ export default function Admin() {
         await supabase.from('products').update({ cover_image_url: imageRows[0].image_url }).eq('id', created.id);
       }
     } catch {
-      setMessage('Товар и размеры сохранены, но загрузка фото не завершилась. Добавь изображения повторно.');
+      if (uploadedPaths.length) await supabase.storage.from('product-images').remove(uploadedPaths);
+      await supabase.from('products').delete().eq('id', created.id);
+      setMessage('Не удалось загрузить все фотографии. Незавершённый товар удалён, попробуй ещё раз.');
       await loadAdminData();
       setBusy(false);
       return;
+    }
+
+    if (publishImmediately) {
+      const { error: publishError } = await supabase.from('products').update({ is_active: true }).eq('id', created.id);
+      if (publishError) {
+        setMessage('Товар сохранён как черновик: не удалось включить публикацию.');
+        await loadAdminData();
+        setBusy(false);
+        return;
+      }
     }
 
     setProductName(''); setProductNameKy(''); setProductDescription('');
