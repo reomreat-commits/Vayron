@@ -607,3 +607,6 @@ body.dark .theme-btn .moon{display:none}
 .chip, .add, .perk, .band, .card h3, .meta, .price, .sz, footer, .social a, .sheet, .sh-head, .foot, .pay {
   transition: background .45s var(--ease), color .45s var(--ease), border-color .45s var(--ease);
 }
+
+/* Separate order destinations retain the original checkout button styling. */
+.checkout-actions{display:grid;gap:8px}
