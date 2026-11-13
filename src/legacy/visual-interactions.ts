@@ -2,6 +2,17 @@
 export function initVisualInteractions(): () => void {
   const cleanups: Array<() => void> = [];
 
+  const revealObserver = 'IntersectionObserver' in window
+    ? new IntersectionObserver(entries => entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          revealObserver?.unobserve(entry.target);
+        }
+      }), { threshold: 0.12 })
+    : null;
+  document.querySelectorAll('.rv:not(.in)').forEach(node => revealObserver ? revealObserver.observe(node) : node.classList.add('in'));
+  cleanups.push(() => revealObserver?.disconnect());
+
   const marquee = document.getElementById('mq');
   if (marquee) {
     const words = ['BUILT FOR THE STREETS', 'STREETWEAR DIVISION', 'VAYRON', 'НОВАЯ КОЛЛЕКЦИЯ'];
