@@ -580,3 +580,186 @@ body.dark .theme-btn .moon{display:none}
 .instagram-order textarea{width:100%;min-height:110px;resize:vertical;background:var(--milk);color:var(--ink);border:1px solid var(--line);padding:10px;font:inherit;font-size:12px;line-height:1.5}
 .instagram-back{background:transparent;color:var(--mute);padding:8px;font:inherit;font-size:12px}
 .pic img{width:100%;height:100%;object-fit:cover;display:block}
+
+
+/* VAYRON CATALOG REFINEMENT — preserve the original palette and motion */
+.grid{
+  width:100%;
+  max-width:1560px;
+  margin:0 auto;
+  padding:0 16px 12px;
+  gap:clamp(14px,2.2vw,28px);
+  align-items:start;
+}
+.card{
+  min-width:0;
+  height:100%;
+  gap:0;
+}
+.card .pic{
+  width:100%;
+  aspect-ratio:4/5;
+  padding:clamp(8px,1.25vw,14px);
+  border:1px solid var(--line);
+  border-radius:4px;
+  background:var(--panel);
+  isolation:isolate;
+}
+.photo-frame{
+  position:relative;
+  display:grid;
+  place-items:center;
+  width:100%;
+  height:100%;
+  min-width:0;
+  overflow:hidden;
+  border:1px solid color-mix(in srgb,var(--line) 82%,transparent);
+  background:linear-gradient(145deg,rgba(255,255,255,.18),rgba(0,0,0,.025));
+}
+.photo-frame::after{
+  content:"";
+  position:absolute;
+  inset:7px;
+  border:1px solid color-mix(in srgb,var(--line) 62%,transparent);
+  pointer-events:none;
+  z-index:1;
+}
+.photo-frame img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:contain;
+  padding:clamp(8px,1.6vw,20px);
+  transition:transform .8s var(--ease),opacity .5s ease;
+}
+.photo-placeholder{
+  color:var(--mute);
+  font-size:clamp(11px,1vw,14px);
+  font-weight:600;
+  letter-spacing:.28em;
+}
+.card-copy{
+  display:flex;
+  flex:1;
+  flex-direction:column;
+  min-width:0;
+}
+.card h3{
+  margin:14px 2px 0;
+  font-size:clamp(15px,1.35vw,19px);
+  font-weight:600;
+  line-height:1.2;
+  letter-spacing:.015em;
+  overflow-wrap:anywhere;
+}
+.card .meta{
+  margin:5px 2px 0;
+  min-height:1.35em;
+  color:var(--mute);
+  font-size:clamp(12px,1vw,14px);
+  line-height:1.35;
+  letter-spacing:.025em;
+}
+.size-heading{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin:14px 2px 0;
+  color:var(--mute);
+  font-size:10px;
+  line-height:1.2;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.szs{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin:8px 0 0;
+  min-height:38px;
+}
+.sz{
+  min-width:38px;
+  height:38px;
+  padding:0 9px;
+  border:1px solid var(--line);
+  border-radius:2px;
+  background:transparent;
+  color:var(--ink);
+  font-size:12px;
+  font-weight:500;
+  transition:background .22s,color .22s,border-color .22s,transform .22s;
+}
+.sz[aria-pressed="true"]{
+  background:var(--ink);
+  color:var(--milk);
+  border-color:var(--ink);
+}
+.sz:disabled{
+  opacity:.34;
+  text-decoration:line-through;
+  cursor:not-allowed;
+  background:transparent;
+  color:var(--mute);
+}
+.row{
+  align-items:stretch;
+  gap:8px;
+  margin:14px 0 0;
+}
+.price{
+  display:flex;
+  align-items:center;
+  min-width:0;
+  font-size:clamp(14px,1.35vw,19px);
+  line-height:1.1;
+  letter-spacing:.005em;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+.add{
+  flex:0 0 auto;
+  width:auto;
+  min-width:104px;
+  min-height:42px;
+  height:auto;
+  padding:9px 12px;
+  font-size:11px;
+  letter-spacing:.055em;
+}
+.add:disabled{
+  opacity:.38;
+  cursor:not-allowed;
+  transform:none;
+  background:var(--mute);
+}
+.chips{
+  scroll-snap-type:x proximity;
+  overscroll-behavior-x:contain;
+}
+.chip{scroll-snap-align:start}
+@media (min-width:760px){
+  .grid{grid-template-columns:repeat(3,minmax(0,1fr));padding:0 32px 16px}
+  .card .pic{padding:12px}
+}
+@media (min-width:1120px){
+  .grid{grid-template-columns:repeat(4,minmax(0,1fr));padding-left:48px;padding-right:48px}
+}
+@media (max-width:380px){
+  .grid{gap:11px;padding-left:10px;padding-right:10px}
+  .card .pic{padding:7px}
+  .szs{gap:4px}
+  .sz{min-width:34px;height:36px;padding:0 7px}
+  .row{gap:6px}
+  .add{min-width:88px;padding:8px 7px;font-size:10px}
+  .price{font-size:14px}
+}
+@media (hover:hover){
+  .photo-frame img{transform:scale(.98)}
+  .card.rv.in:hover .photo-frame img{transform:scale(1.045)}
+  .sz:not(:disabled):hover{border-color:var(--ink)}
+}
+@media (prefers-reduced-motion:reduce){
+  .photo-frame img{transition:none!important}
+}
