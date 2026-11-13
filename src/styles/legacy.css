@@ -613,14 +613,14 @@ body.dark .theme-btn .moon{display:none}
   height:100%;
   min-width:0;
   overflow:hidden;
-  border:1px solid color-mix(in srgb,var(--line) 82%,transparent);
+  border:1px solid var(--line);
   background:linear-gradient(145deg,rgba(255,255,255,.18),rgba(0,0,0,.025));
 }
 .photo-frame::after{
   content:"";
   position:absolute;
   inset:7px;
-  border:1px solid color-mix(in srgb,var(--line) 62%,transparent);
+  border:1px solid rgba(111,106,96,.24);
   pointer-events:none;
   z-index:1;
 }
@@ -659,6 +659,10 @@ body.dark .theme-btn .moon{display:none}
   font-size:clamp(12px,1vw,14px);
   line-height:1.35;
   letter-spacing:.025em;
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  overflow:hidden;
 }
 .size-heading{
   display:flex;
