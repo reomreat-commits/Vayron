@@ -229,8 +229,9 @@ export default function Storefront() {
   function openInstagram() {
     const destination = settings?.instagram_url?.trim();
     if (!destination) { notify('Instagram магазина ещё не настроен'); return; }
-    const opened = window.open(destination, '_blank', 'noopener,noreferrer');
-    if (!opened) window.location.href = destination;
+    const opened = window.open(destination, '_blank');
+    if (opened) opened.opener = null;
+    else window.location.href = destination;
   }
 
   const chips = document.getElementById('chips');
