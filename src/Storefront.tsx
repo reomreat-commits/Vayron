@@ -33,6 +33,7 @@ export default function Storefront() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [settings, setSettings] = useState<StoreSettings | null>(null);
+  const [instagramDraft, setInstagramDraft] = useState<string | null>(null);
   const [cart, setCart] = useState<CartLine[]>(readCart);
   const [selected, setSelected] = useState<Record<string, string>>({});
   const [category, setCategory] = useState('all');
@@ -121,6 +122,7 @@ export default function Storefront() {
   const total = entries.reduce((sum, line) => sum + line.quantity * Number(line.product.price), 0);
 
   function add(product: Product) {
+    setInstagramDraft(null);
     const variantId = selected[product.id];
     const variant = product.product_variants.find(item => item.id === variantId);
     if (!variant || variant.stock < 1) {
@@ -146,6 +148,7 @@ export default function Storefront() {
   }
 
   function change(entry: CartEntry, delta: number) {
+    setInstagramDraft(null);
     setCart(current => current.flatMap(line => {
       if (line.variantId !== entry.variantId) return [line];
       const quantity = Math.min(entry.variant.stock, line.quantity + delta);
@@ -168,7 +171,7 @@ export default function Storefront() {
     }
 
     // Reserve a new tab synchronously in the click handler for mobile popup blockers.
-    const popup = window.open('about:blank', '_blank');
+    const popup = channel === 'whatsapp' ? window.open('about:blank', '_blank') : null;
     const productIds = [...new Set(entries.map(entry => entry.productId))];
     const [stockResult, productResult] = await Promise.all([
       supabase.from('product_variants').select('id,stock,product_id').in('id', entries.map(entry => entry.variantId)),
@@ -203,11 +206,31 @@ export default function Storefront() {
       if (popup) popup.location.href = url; else window.location.href = url;
       return;
     }
+
+    // Clipboard access must happen from a fresh user gesture on iOS/Safari.
+    setInstagramDraft(message);
+    notify('Состав заказа подготовлен. Скопируй его, затем открой Instagram.');
+  }
+
+  async function copyInstagramOrder() {
+    if (!instagramDraft) return;
     try {
-      await navigator.clipboard.writeText(message);
-      notify('Состав заказа скопирован — отправьте его в Instagram');
-    } catch { notify('Instagram открыт. Скопируйте состав заказа вручную.'); }
-    if (popup) popup.location.href = destination; else window.location.href = destination;
+      await navigator.clipboard.writeText(instagramDraft);
+      notify('Заказ скопирован. Теперь открой Instagram.');
+    } catch {
+      const field = document.getElementById('instagramOrderText') as HTMLTextAreaElement | null;
+      field?.focus();
+      field?.select();
+      const copied = document.execCommand('copy');
+      notify(copied ? 'Заказ скопирован. Теперь открой Instagram.' : 'Выдели текст заказа и скопируй его вручную.');
+    }
+  }
+
+  function openInstagram() {
+    const destination = settings?.instagram_url?.trim();
+    if (!destination) { notify('Instagram магазина ещё не настроен'); return; }
+    const opened = window.open(destination, '_blank', 'noopener,noreferrer');
+    if (!opened) window.location.href = destination;
   }
 
   const chips = document.getElementById('chips');
@@ -256,9 +279,20 @@ export default function Storefront() {
   const portals = [];
   if (checkoutActions) portals.push(createPortal(
     <div className="checkout-actions">
-      {settings?.whatsapp_phone && <button className="pay" type="button" onClick={() => void checkout('whatsapp')}>Заказать в WhatsApp</button>}
-      {settings?.instagram_url && <button className="pay" type="button" onClick={() => void checkout('instagram')}>Заказать в Instagram</button>}
-      {!settings?.whatsapp_phone && !settings?.instagram_url && <div className="empty">Контакты магазина ещё не настроены</div>}
+      {instagramDraft ? (
+        <div className="instagram-order">
+          <textarea id="instagramOrderText" value={instagramDraft} readOnly rows={5} aria-label="Текст заказа для Instagram" />
+          <button className="pay" type="button" onClick={() => void copyInstagramOrder()}>Скопировать заказ</button>
+          <button className="pay" type="button" onClick={openInstagram}>Открыть Instagram</button>
+          <button className="instagram-back" type="button" onClick={() => setInstagramDraft(null)}>Назад</button>
+        </div>
+      ) : (
+        <>
+          {settings?.whatsapp_phone && <button className="pay" type="button" onClick={() => void checkout('whatsapp')}>Заказать в WhatsApp</button>}
+          {settings?.instagram_url && <button className="pay" type="button" onClick={() => void checkout('instagram')}>Заказать в Instagram</button>}
+          {!settings?.whatsapp_phone && !settings?.instagram_url && <div className="empty">Контакты магазина ещё не настроены</div>}
+        </>
+      )}
     </div>, checkoutActions,
   ));
   if (chips) portals.push(createPortal(
