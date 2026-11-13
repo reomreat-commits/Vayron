@@ -573,3 +573,6 @@ body.dark .theme-btn .moon{display:none}
   .head.rv h2,.card.rv,.card.rv .pic svg,.band,.band.rv h2,.band.rv p,.social.rv a{animation:none!important;clip-path:none!important;opacity:1!important;transform:none!important;transition:none!important}
   .band.rv p{opacity:.92!important}
 }
+
+/* Separate order destinations retain the original checkout button styling. */
+.checkout-actions{display:grid;gap:8px}
