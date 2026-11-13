@@ -19,19 +19,26 @@
 - `package-lock.json` is committed; CI uses `npm ci`.
 - GitHub Actions runs dependency audit, TypeScript check, and Vite production build.
 
-## Remaining before launch
-- Configure `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in the hosting environment.
-- Configure verified WhatsApp and Instagram destinations.
+## Hosting
+- Cloudflare Workers Builds is connected to `reomreat-commits/Vayron`, production branch `main`.
+- Production build command: `npm run build`; deploy command: `npx wrangler deploy`; output: `dist`.
+- Preview deployments are enabled.
+- `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` are configured as public build-time variables for production and previews. No service-role or secret key is used in the browser.
+- Production Worker: https://vayron.9mmm77v2jj.workers.dev
+- The legacy Pages-style `public/_redirects` catch-all was removed because Workers Static Assets already uses SPA fallback routing and the old rule caused an infinite redirect validation error.
+
+## Remaining before public launch
+- Configure verified WhatsApp and Instagram destinations in store settings.
 - Add real product data and images; no fictional products are seeded.
 - Run desktop and mobile visual regression checks against `original/vayron.html`.
-- Test admin upload and stock workflows against the live Supabase project.
-- Choose hosting and publish the production build.
-
+- Test admin sign-in, product creation/edit/delete, image upload, publication, and size-level stock workflows against the live Supabase project.
+- Verify the deployed storefront and Supabase-backed catalogue in a real browser on desktop and iPhone.
 
 ## Latest verification
 - GitHub Actions run #33 (PR #3, based on the latest application code) passed dependency installation, high-severity npm audit, TypeScript validation, and the production Vite build.
+- Cloudflare Workers Build completed the Vite production build and deployed Worker version `4d90468c-6010-4c9b-a5d6-49e9a34ee78a`; deployment log reported success.
 - Supabase sanity check: one admin profile, KGS settings row present, and no categories, products, variants, or product images seeded.
 - Supabase Security Advisor currently warns that leaked-password protection is disabled. This Auth setting has not been changed from the code repository.
 
 ## Security
-Never expose Supabase `service_role` or secret keys in `VITE_*` variables. Browser access uses only the publishable/anon key. Database RLS policies are the actual authorization boundary; the frontend role check is only a UX gate.
+Never expose Supabase `service_role` or secret keys in `VITE_*` variables. Browser access uses only the publishable key. Database RLS policies are the actual authorization boundary; the frontend role check is only a UX gate.
