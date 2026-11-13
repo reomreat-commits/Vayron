@@ -251,7 +251,7 @@ export default function Storefront() {
       shade?.removeEventListener('click', close);
       document.removeEventListener('keydown', onKey);
     };
-  });
+  }, []);
 
   const portals = [];
   if (checkoutActions) portals.push(createPortal(
