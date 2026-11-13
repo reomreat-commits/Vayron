@@ -169,13 +169,20 @@ export default function Storefront() {
 
     // Reserve a new tab synchronously in the click handler for mobile popup blockers.
     const popup = window.open('about:blank', '_blank');
-    const { data, error: stockError } = await supabase
-      .from('product_variants').select('id,stock,products(is_active)').in('id', entries.map(entry => entry.variantId));
-    const rows = (data || []) as Array<{ id: string; stock: number; products: { is_active: boolean }[] }>;
-    if (stockError || rows.length !== entries.length ||
+    const productIds = [...new Set(entries.map(entry => entry.productId))];
+    const [stockResult, productResult] = await Promise.all([
+      supabase.from('product_variants').select('id,stock,product_id').in('id', entries.map(entry => entry.variantId)),
+      supabase.from('products').select('id,is_active').in('id', productIds),
+    ]);
+    const stockRows = (stockResult.data || []) as Array<{ id: string; stock: number; product_id: string }>;
+    const productRows = (productResult.data || []) as Array<{ id: string; is_active: boolean }>;
+    if (stockResult.error || productResult.error || stockRows.length !== entries.length ||
+      productRows.length !== productIds.length ||
       entries.some(entry => {
-        const row = rows.find(item => item.id === entry.variantId);
-        return !row || row.stock < entry.quantity || row.products[0]?.is_active !== true;
+        const stockRow = stockRows.find(row => row.id === entry.variantId);
+        const productRow = productRows.find(row => row.id === entry.productId);
+        return !stockRow || stockRow.stock < entry.quantity || !productRow?.is_active ||
+          stockRow.product_id !== entry.productId;
       })) {
       popup?.close();
       notify('Остатки изменились. Обновите страницу и проверьте корзину.');
