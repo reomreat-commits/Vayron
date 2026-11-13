@@ -153,22 +153,24 @@ export default function Storefront() {
     }));
   }
 
-  async function checkout() {
-    if (!entries.length) {
-      notify('Корзина пуста');
-      return;
-    }
-    if (!supabase) {
-      notify('Каталог временно недоступен');
+  async function checkout(channel: 'whatsapp' | 'instagram') {
+    if (!entries.length) { notify('Корзина пуста'); return; }
+    if (!supabase) { notify('Каталог временно недоступен'); return; }
+
+    const phone = settings?.whatsapp_phone?.replace(/[^0-9]/g, '');
+    const instagram = settings?.instagram_url?.trim();
+    const destination = channel === 'whatsapp'
+      ? (phone ? 'https://wa.me/' + phone : null)
+      : (instagram || null);
+    if (!destination) {
+      notify(channel === 'whatsapp' ? 'WhatsApp магазина ещё не настроен' : 'Instagram магазина ещё не настроен');
       return;
     }
 
-    // Open synchronously from the click so mobile browsers do not block the later redirect.
+    // Reserve a new tab synchronously in the click handler for mobile popup blockers.
     const popup = window.open('about:blank', '_blank');
     const { data, error: stockError } = await supabase
-      .from('product_variants')
-      .select('id,stock')
-      .in('id', entries.map(entry => entry.variantId));
+      .from('product_variants').select('id,stock').in('id', entries.map(entry => entry.variantId));
     const rows = (data || []) as Array<{ id: string; stock: number }>;
     if (stockError || rows.length !== entries.length ||
       entries.some(entry => (rows.find(row => row.id === entry.variantId)?.stock ?? 0) < entry.quantity)) {
@@ -179,33 +181,23 @@ export default function Storefront() {
 
     const messageLines = ['Здравствуйте! Хочу приобрести:'];
     for (const entry of entries) {
-      messageLines.push(`${entry.product.name_ru} — размер ${entry.variant.size_label} × ${entry.quantity} — ${formatPrice(entry.product.price * entry.quantity)}`);
+      messageLines.push(entry.product.name_ru + ' — размер ' + entry.variant.size_label + ' × ' + entry.quantity + ' — ' + formatPrice(entry.product.price * entry.quantity));
       const image = entry.product.cover_image_url || entry.product.product_images?.[0]?.image_url;
-      if (image) messageLines.push(`Фото: ${image}`);
+      if (image) messageLines.push('Фото: ' + image);
     }
-    messageLines.push(`Итого: ${formatPrice(total)}`);
+    messageLines.push('Итого: ' + formatPrice(total));
     const message = messageLines.join('\n');
-    const phone = settings?.whatsapp_phone?.replace(/[^0-9]/g, '');
-    const instagram = settings?.instagram_url?.trim();
 
-    if (phone) {
-      if (popup) popup.location.href = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-      else window.location.href = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+    if (channel === 'whatsapp') {
+      const url = destination + '?text=' + encodeURIComponent(message);
+      if (popup) popup.location.href = url; else window.location.href = url;
       return;
     }
-    if (instagram) {
-      try {
-        await navigator.clipboard.writeText(message);
-        notify('Текст заказа скопирован');
-      } catch {
-        notify('Instagram открыт. Скопируйте состав заказа вручную.');
-      }
-      if (popup) popup.location.href = instagram;
-      else window.location.href = instagram;
-      return;
-    }
-    popup?.close();
-    notify('Контакты магазина ещё не добавлены');
+    try {
+      await navigator.clipboard.writeText(message);
+      notify('Состав заказа скопирован — отправьте его в Instagram');
+    } catch { notify('Instagram открыт. Скопируйте состав заказа вручную.'); }
+    if (popup) popup.location.href = destination; else window.location.href = destination;
   }
 
   const chips = document.getElementById('chips');
@@ -214,6 +206,7 @@ export default function Storefront() {
   const count = document.getElementById('count');
   const sum = document.getElementById('bsum');
   const totalNode = document.getElementById('total');
+  const checkoutActions = document.getElementById('checkoutActions');
 
   useEffect(() => {
     if (count) count.hidden = itemCount === 0;
@@ -236,24 +229,28 @@ export default function Storefront() {
     const shade = document.getElementById('shade');
     const openButton = document.getElementById('openCart');
     const closeButton = document.getElementById('closeCart');
-    const payButton = document.getElementById('pay');
     const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') close(); };
     openButton?.addEventListener('click', open);
     closeButton?.addEventListener('click', close);
     shade?.addEventListener('click', close);
-    payButton?.addEventListener('click', checkout);
     document.addEventListener('keydown', onKey);
     return () => {
       reveal?.disconnect();
       openButton?.removeEventListener('click', open);
       closeButton?.removeEventListener('click', close);
       shade?.removeEventListener('click', close);
-      payButton?.removeEventListener('click', checkout);
       document.removeEventListener('keydown', onKey);
     };
   });
 
   const portals = [];
+  if (checkoutActions) portals.push(createPortal(
+    <div className="checkout-actions">
+      {settings?.whatsapp_phone && <button className="pay" type="button" onClick={() => void checkout('whatsapp')}>Заказать в WhatsApp</button>}
+      {settings?.instagram_url && <button className="pay" type="button" onClick={() => void checkout('instagram')}>Заказать в Instagram</button>}
+      {!settings?.whatsapp_phone && !settings?.instagram_url && <div className="empty">Контакты магазина ещё не настроены</div>}
+    </div>, checkoutActions,
+  ));
   if (chips) portals.push(createPortal(
     <>
       <button className="chip" aria-pressed={category === 'all'} onClick={() => setCategory('all')}>Все</button>
