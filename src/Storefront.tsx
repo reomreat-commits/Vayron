@@ -45,13 +45,14 @@ export default function Storefront() {
       setError('Подключение к каталогу ещё не настроено');
       return;
     }
+    const client = supabase;
     let active = true;
     const load = async () => {
       setLoading(true);
       const [productResult, categoryResult, settingsResult] = await Promise.all([
-        supabase.from('products').select('id,name_ru,description_ru,slug,price,cover_image_url,sort_order,categories(id,name_ru,slug,sort_order),product_variants(id,size_label,stock,sku),product_images(image_url,alt_ru,sort_order)').eq('is_active', true).order('sort_order'),
-        supabase.from('categories').select('id,name_ru,slug,sort_order').order('sort_order'),
-        supabase.from('store_settings').select('whatsapp_phone,instagram_url,currency_code').eq('id', 1).maybeSingle(),
+        client.from('products').select('id,name_ru,description_ru,slug,price,cover_image_url,sort_order,categories(id,name_ru,slug,sort_order),product_variants(id,size_label,stock,sku),product_images(image_url,alt_ru,sort_order)').eq('is_active', true).order('sort_order'),
+        client.from('categories').select('id,name_ru,slug,sort_order').order('sort_order'),
+        client.from('store_settings').select('whatsapp_phone,instagram_url,currency_code').eq('id', 1).maybeSingle(),
       ]);
       if (!active) return;
       if (productResult.error) {
