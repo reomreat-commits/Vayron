@@ -15,15 +15,16 @@
 - Separate `/admin` route uses Supabase password sign-in and verifies the user's database profile role.
 - Admin interface supports categories, product creation, size-level stock, product image upload, publication status, and store contacts.
 - The legacy source's fake WhatsApp and Instagram destinations are removed from the active storefront markup.
+- `package-lock.json` is committed; CI installs with `npm ci`.
+- GitHub Actions TypeScript check and Vite production build passed on the current application code.
 
 ## Remaining before launch
 - Configure `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in the hosting environment.
-- Commit and verify a reproducible dependency lockfile.
-- Pass the full GitHub Actions TypeScript and production-build checks.
 - Configure verified WhatsApp and Instagram destinations.
 - Add real product data and images; no fictional products are seeded.
 - Run desktop and mobile visual regression checks against the original HTML.
-- Test the admin upload and stock workflows against the live Supabase project.
+- Test admin upload and stock workflows against the live Supabase project.
+- Choose hosting and publish the production build.
 
 ## Security
 Never expose Supabase `service_role` or secret keys in `VITE_*` variables. Browser access uses only the publishable/anon key. Database RLS policies are the actual authorization boundary; the frontend role check is only a UX gate.
