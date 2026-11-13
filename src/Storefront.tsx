@@ -172,20 +172,20 @@ export default function Storefront() {
     const productIds = [...new Set(entries.map(entry => entry.productId))];
     const [stockResult, productResult] = await Promise.all([
       supabase.from('product_variants').select('id,stock,product_id').in('id', entries.map(entry => entry.variantId)),
-      supabase.from('products').select('id,is_active').in('id', productIds),
+      supabase.from('products').select('id,is_active,price').in('id', productIds),
     ]);
     const stockRows = (stockResult.data || []) as Array<{ id: string; stock: number; product_id: string }>;
-    const productRows = (productResult.data || []) as Array<{ id: string; is_active: boolean }>;
+    const productRows = (productResult.data || []) as Array<{ id: string; is_active: boolean; price: number }>;
     if (stockResult.error || productResult.error || stockRows.length !== entries.length ||
       productRows.length !== productIds.length ||
       entries.some(entry => {
         const stockRow = stockRows.find(row => row.id === entry.variantId);
         const productRow = productRows.find(row => row.id === entry.productId);
         return !stockRow || stockRow.stock < entry.quantity || !productRow?.is_active ||
-          stockRow.product_id !== entry.productId;
+          Number(productRow.price) !== Number(entry.product.price) || stockRow.product_id !== entry.productId;
       })) {
       popup?.close();
-      notify('Остатки изменились. Обновите страницу и проверьте корзину.');
+      notify('Каталог, цена или остатки изменились. Обновите страницу и проверьте корзину.');
       return;
     }
 
