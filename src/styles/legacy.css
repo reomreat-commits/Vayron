@@ -610,3 +610,5 @@ body.dark .theme-btn .moon{display:none}
 
 /* Separate order destinations retain the original checkout button styling. */
 .checkout-actions{display:grid;gap:8px}
+
+.instagram-order{display:grid;gap:8px}.instagram-order textarea{width:100%;min-height:110px;resize:vertical;background:var(--milk);color:var(--ink);border:1px solid var(--line);padding:10px;font:inherit;font-size:12px;line-height:1.5}.instagram-back{background:transparent;color:var(--mute);padding:8px;font:inherit;font-size:12px}
