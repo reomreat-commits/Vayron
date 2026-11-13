@@ -29,8 +29,7 @@
 
 
 ## Latest verification
-- GitHub Actions run #27 passed dependency installation, high-severity npm audit, TypeScript validation, and the production Vite build for the code at the start of this final verification pass.
-- A fresh CI run is required after each subsequent code change; do not treat the earlier run as validating later commits.
+- GitHub Actions run #33 (PR #3, based on the latest application code) passed dependency installation, high-severity npm audit, TypeScript validation, and the production Vite build.
 - Supabase sanity check: one admin profile, KGS settings row present, and no categories, products, variants, or product images seeded.
 - Supabase Security Advisor currently warns that leaked-password protection is disabled. This Auth setting has not been changed from the code repository.
 
