@@ -227,6 +227,10 @@ export default function Admin() {
     if (!supabase) return;
     const phone = settings.whatsapp_phone?.replace(/[^0-9]/g, '') || null;
     const instagram = settings.instagram_url?.trim() || null;
+    if (phone && (phone.length < 8 || phone.length > 15)) {
+      setMessage('WhatsApp: укажи номер в международном формате, от 8 до 15 цифр с кодом страны.');
+      return;
+    }
     if (instagram && !/^https:\/\/(www\.)?instagram\.com\//i.test(instagram)) {
       setMessage('Для Instagram укажи полную ссылку https://instagram.com/…');
       return;
